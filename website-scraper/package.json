@@ -1,0 +1,6 @@
+{
+  "dependencies": {
+    "fs-extra": "^4.0.2",
+    "website-scraper": "^3.3.2"
+  }
+}
