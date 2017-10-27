@@ -6,20 +6,12 @@ module.exports = function Thread(configObj) {
 
     var defaultOpts = {
         maxOnlineId: 0,
-        maxScrapedId: 0,
         maxDownloadedId: 0,
         downloadedIdList: [],
         uselessIdList: [],
         saveDirecory: './save-directory/thread/',
-        downloader:{
-            asyncMethod:require('./thread-scraper'),
-            syncMethod:require('./downloader'),
-            sleepSecond:5,
-            maxWorkers:2,
-            currentId:0,
-            workerQueue:[],
-            todoQueue:[]
-        }
+        downloader:require('./download-worker'),
+        sleepSecond : 3
     }
 
     this.config = (configObj) => {
@@ -50,62 +42,31 @@ module.exports = function Thread(configObj) {
 
     this.downloadStart = () => {
 
-        this.downloader.todoQueue = rangeArray(0, this.maxDownloadedId).filter((id)=>{return !this.existId(id)});
+        var todoIdList = rangeArray( this.maxDownloadedId, this.maxOnlineId).filter((id)=>{return !this.existId(id)});
+
+        console.log("抓取", todoIdList.length, '个页面');
+
+        todoIdList.forEach((id)=>{
+            this.downloader.todoPush(id);
+        })
+
+        this.downloader.log()
         
         this.taskId = setInterval( () => {
-
-            this.downloadStep();
-        },
-            this.downloader.sleepSecond * 1000 // 睡眠一段时间
-        )
-        this.downloadStep();
-    }
-
-
-    this.downloadStep =  (id, filter) => {
-        console.log(this.downloader.workerQueue)
-        
-        if(this.checkEnd()){
-            this.downloadStop();
-        }
-        
-        if(!this.workerQueueEmpty()){
-            console.log('working');
-            return ;
-        }
-        this.generateWorkerQueue();
-        this.downloader.workerQueue.forEach((id)=>{
-            
-            if(typeof id == "number"){
-                this.downloader.syncMethod(id);
-                console.log("download thread, id:",id);
+            if(this.downloader.checkEnd()){
+                clearInterval( this.taskId );
+                this.downloadStop();
+                return ;
             }
-        })
-        
-        
+            this.downloader.step();
+            this.downloader.log();
+        },
+            this.sleepSecond * 1000 // 睡眠一段时间
+        )
     }
 
-    this.checkEnd = ()=>{
-        return this.downloader.todoQueue.length < 1;
-    }
-    
-    this.workerQueueEmpty = ()=>{
-        this.downloader.workerQueue 
-            = this.downloader.workerQueue
-                                .filter((id)=>{
-                                    return !this.existId(id);
-                                })
-        return this.downloader.workerQueue.length < 1;
-    }
 
-    this.generateWorkerQueue = ()=>{
-        var workerQueue = this.downloader.workerQueue;
-        var todoQueue = this.downloader.todoQueue;
-        while(workerQueue.length < this.downloader.maxWorkers){
-            workerQueue.push(todoQueue.shift());
-        }
- 
-    }
+
 
     this.downloadStop = () =>{
         clearInterval(this.taskId);
