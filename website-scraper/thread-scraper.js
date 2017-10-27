@@ -1,8 +1,8 @@
-const scrape = require('website-scraper');
-const fse = require('fs-extra');
+
 
 const threadScraper = function(id){
-
+    const scrape = require('website-scraper');
+    const fse = require('fs-extra');
      
     const tmpDir = './tmp-'+id;
     const targetDir = './save-directory/thread/';
