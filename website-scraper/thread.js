@@ -71,7 +71,7 @@ module.exports = function Thread(configObj) {
                 this.maxDownloadedId = id;
             }
             this.store();
-            console.log("进度: ", this.maxDownloadedId/this.maxOnlineId *100,"%")
+            console.log("进度:", ~~(this.maxDownloadedId/this.maxOnlineId*10000)/100 ,"%")
         })
         
         this.downloader.log()
