@@ -69,12 +69,7 @@ var DownloadWorker = (function () {
     }
 
     var checkWorkerQueueEmpty = () => {
-        var undoQueue = workerQueue.filter((worker) => {
-            var undo = worker.status != statusEnum.ok;
-            return undo;
-        })
-        workerQueue = undoQueue;
-        return undoQueue.length < 1;
+        return workerQueue.length < 1;
     }
 
     var checkTodoQueueEmpty = () => {
@@ -153,4 +148,5 @@ var DownloadWorker = (function () {
         myEmitter
     }
 })();
+
 module.exports = DownloadWorker
