@@ -1,3 +1,5 @@
 **/node_modules/**
 **/save*/**
-*/tmp*/**
+**/tmp*/**
+**/target/**
+**/.settings/**
