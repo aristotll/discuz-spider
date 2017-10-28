@@ -1,17 +1,13 @@
 
 
-const threadScraper = function(id){
+const threadScraper = function(url, distDirectory){
     const scrape = require('website-scraper');
     const fse = require('fs-extra');
      
-    const tmpDir = './tmp-'+id;
-    const targetDir = './save-directory/thread/';
-    const url = 'http://www.1point3acres.com/bbs/thread-'+id+'-1-1.html';
-    const fileName = 'thread-'+id+'-1-1.html'
+    const tmpDir = './tmp-'+random();
 
     var options = {
         urls: [url],
-        defaultFilename: fileName,
         prettifyUrls:true,
         directory: tmpDir
     };
@@ -20,7 +16,7 @@ const threadScraper = function(id){
     scrape(options).then((result) => {
         console.log(url);
         console.log('download!');
-        fse.move(tmpDir, targetDir,{ overwrite: false })
+        fse.move(tmpDir, distDirectory,{ overwrite: false })
         .then(() => {
             console.log('move!',id);
         })

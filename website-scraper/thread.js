@@ -1,5 +1,6 @@
 require('es6-shim');
 let rangeArray = (start, end) => Array(end - start + 1).fill(0).map((v, i) => i + start);
+var websiteMap = require('./website-map.json');
 
 module.exports = function Thread(configObj) {
     var fs = require('fs-extra');
@@ -11,7 +12,7 @@ module.exports = function Thread(configObj) {
         uselessIdList: [],
         saveDirecory: './save-directory/thread/',
         downloader:require('./download-worker'),
-        sleepSecond : 3
+        sleepSecond : 5
     }
 
     this.config = (configObj) => {
@@ -40,6 +41,20 @@ module.exports = function Thread(configObj) {
                     );
     }
 
+    this.toPOJO = ()=>{
+        return {
+            summary:{
+                maxDownloadedId :this.maxDownloadedId,
+                maxOnlineId:this.maxOnlineId
+            }
+        }
+    }
+
+    this.store = ()=>{
+        Object.assign(websiteMap ,this.toPOJO())
+        fs.writeJson('./website-map.json', websiteMap);
+    }
+
     this.downloadStart = () => {
 
         var todoIdList = rangeArray( this.maxDownloadedId, this.maxOnlineId).filter((id)=>{return !this.existId(id)});
@@ -50,6 +65,14 @@ module.exports = function Thread(configObj) {
             this.downloader.todoPush(id);
         })
 
+        this.downloader.myEmitter.on('ok',(id)=>{
+            console.log("-------",id,"---------")
+            if(this.maxDownloadedId<id){
+                this.maxDownloadedId = id;
+            }
+            this.store();
+        })
+        
         this.downloader.log()
         
         this.taskId = setInterval( () => {

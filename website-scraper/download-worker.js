@@ -20,19 +20,36 @@ var DownloadWorker = (function () {
     class MyEmitter extends EventEmitter {}
     
     const myEmitter = new MyEmitter();
+    myEmitter.on(statusEnum.request, (id, opt) => {
+        //console.log('页面', id,'下载开始', opt);
+        
+        
+    });   
     myEmitter.on(statusEnum.ok, (id) => {
-        console.log('页面', id,'下载成功');
+        //console.log('页面', id,'下载成功');
         workerQueue = workerQueue.filter((worker)=>{
                                         return worker.id != id
                                     })
     });
-
+    myEmitter.on(statusEnum.timeout, (id)=>{
+        //console.log('页面', id,'请求超时');
+        workerQueue = workerQueue.filter((worker)=>{
+                                        return worker.id != id
+                                    })        
+    })
+    myEmitter.on(statusEnum.err, (id, _err)=>{
+        //console.log('页面', id,'请求错误');
+        //console.log(_err);
+        workerQueue = workerQueue.filter((worker)=>{
+                                        return worker.id != id
+                                    })        
+    })
     // TODO 其他时间监听
 
 
     var distDirectory = './save-directory/thread';
     var timeoutSecond = 10;
-    var maxWorkerCount = 4;
+    var maxWorkerCount = 3;
 
     var todoPush = (id) => {
         todoQueue.push( _DownloadWorker(id));
@@ -93,16 +110,16 @@ var DownloadWorker = (function () {
             status = _status
         }
         var request = () => {
-            console.log('download',getUrl());
-            console.log('to',fs.realpathSync(distDirectory));
+            //console.log('download',getUrl());
+            //console.log('to',fs.realpathSync(distDirectory));
+            myEmitter.emit(statusEnum.request , id,{"source":getUrl(), "dist":fs.realpathSync(distDirectory)})
+
             download(getUrl(), distDirectory)
                 .then(() => {
-                    console.log("done", "id:", id);
                     myEmitter.emit(statusEnum.ok, id)
                 })
                 .catch(_err => {
-                    
-                    myEmitter.emit(statusEnum.err, _err)
+                    myEmitter.emit(statusEnum.err, id, _err)
                     //console.log(err);
                 })
 
@@ -127,11 +144,13 @@ var DownloadWorker = (function () {
     var log = () => {
         console.log(todoQueue.length, '个页面待抓取');
     }
+
     return {
         todoPush,
         step,
         checkEnd,
-        log
+        log,
+        myEmitter
     }
 })();
 module.exports = DownloadWorker
