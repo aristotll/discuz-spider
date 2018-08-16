@@ -16,6 +16,7 @@
     "es6-shim": "^0.35.3",
     "fs-extra": "^4.0.2",
     "mocha": "^5.2.0",
+    "puppeteer": "^1.7.0",
     "sync-request": "^4.1.0",
     "website-scraper": "^3.3.2"
   },
