@@ -1,5 +1,6 @@
 const download = require('download');
 const fs = require('fs');
+const fsX = require('fs-extra');
 
 
 class DownloadWorker {
@@ -10,16 +11,21 @@ class DownloadWorker {
         this.endId = 10;
         this.sleepSecond = 2;
         Object.assign(this, param);
-        console.log(this)
     }
     run() {
         (async () => {
             for (var id = this.startId; id <= this.endId; ++id) {
+                if(this.fileExist(id)){
+                    continue;
+                }
                 await this.step(id);
             }
         })();
     }
 
+    fileExist(id){
+        return fsX.pathExistsSync(`${this.distDirectory}/thread-${id}-1-1.html`);
+    }
     async step(id) {
         return (async () => {
             var job = new Job(id, this.distDirectory);
