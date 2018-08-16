@@ -15,15 +15,20 @@ class DownloadWorker {
     run() {
         (async () => {
             for (var id = this.startId; id <= this.endId; ++id) {
-                if(this.fileExist(id)){
+                if (this.fileExist(id)) {
                     continue;
                 }
-                await this.step(id);
+                try {
+                    await this.step(id);
+
+                } catch (err) {
+                    console.error(err);
+                }
             }
         })();
     }
 
-    fileExist(id){
+    fileExist(id) {
         return fsX.pathExistsSync(`${this.distDirectory}/thread-${id}-1-1.html`);
     }
     async step(id) {
@@ -36,6 +41,9 @@ class DownloadWorker {
 
             } catch (err) {
                 console.error(err);
+                console.log("休眠10分钟");
+                await job.sleepSecondPromise(60*10);
+                await this.step(id);
             }
         })();
     }
