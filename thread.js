@@ -1,9 +1,10 @@
 require('es6-shim');
 let rangeArray = (start, end) => Array(end - start + 1).fill(0).map((v, i) => i + start);
 var websiteMap = require('./website-map.json');
+var fs = require('fs-extra');
+
 
 module.exports = function Thread(configObj) {
-    var fs = require('fs-extra');
 
     var defaultOpts = {
         maxOnlineId: 0,
@@ -12,7 +13,7 @@ module.exports = function Thread(configObj) {
         uselessIdList: [],
         saveDirecory: './save-directory/thread/',
         downloader:require('./download-worker'),
-        sleepSecond : 5
+        sleepSecond : 4
     }
 
     this.config = (configObj) => {
