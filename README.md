@@ -49,3 +49,7 @@ D" env variable to skip download.
 使用mocha测试框架，chai断言（assertion）库。
 
 测试命令样例：`yarn test test/download-worker.test.js`
+
+## 运行日志
+
+使用[log4js](https://www.npmjs.com/package/log4js)做日志框架。
