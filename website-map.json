@@ -1,7 +1,8 @@
 {
     "download": {
-        "startId": 30146,
-        "endId": 438410,
+        "startId": 1,
+        "endId": 7,
+        "threaId": 1083151,
         "sleepSecond":2,
         "distDirectory":"./save-directory/thread"
     }

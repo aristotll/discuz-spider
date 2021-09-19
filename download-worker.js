@@ -7,11 +7,13 @@ class DownloadWorker {
 
     constructor(param) {
         this.distDirectory = './save-directory/thread';
+        this.threaId = 1
         this.startId = 1;
         this.endId = 10;
         this.sleepSecond = 2;
         Object.assign(this, param);
     }
+
     run() {
         (async () => {
             for (var id = this.startId; id <= this.endId; ++id) {
@@ -29,11 +31,12 @@ class DownloadWorker {
     }
 
     fileExist(id) {
-        return fsX.pathExistsSync(`${this.distDirectory}/thread-${id}-1-1.html`);
+        return fsX.pathExistsSync(`${this.distDirectory}/thread-${this.threadId}-${id}-1.html`);
     }
+
     async step(id) {
         return (async () => {
-            var job = new Job(id, this.distDirectory);
+            var job = new Job(this.threaId, id, this.distDirectory);
             try {
                 await job.request();
                 console.log('done', `id: ${id}`, job.getUrl())
@@ -42,28 +45,33 @@ class DownloadWorker {
             } catch (err) {
                 console.error(err);
                 console.log("休眠10分钟");
-                await job.sleepSecondPromise(60*10);
+                await job.sleepSecondPromise(60 * 10);
                 await this.step(id);
             }
         })();
     }
 
 }
+
 class Job {
-    constructor(id, distDirectory) {
+
+    constructor(threadId, id, distDirectory) {
+        this.threadId = threadId;
         this.id = id;
         this.distDirectory = distDirectory;
     }
 
     getUrl() {
-        return `http://www.1point3acres.com/bbs/thread-${this.id}-1-1.html`;
+        return `https://club.sanguosha.com/thread-${this.threadId}-${this.id}-1.html`;
     }
+
     async request() {
         //console.log('download',getUrl());
         //console.log('to',fs.realpathSync(distDirectory));
         return download(this.getUrl(), this.distDirectory)
 
     }
+
     async sleepSecondPromise(second) {
         return new Promise(resolve => {
             setTimeout(() => {
